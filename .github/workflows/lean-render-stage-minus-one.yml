@@ -22,6 +22,8 @@ jobs:
         run: ~/.elan/bin/lake build
       - name: Build and test Rust
         working-directory: lean-render-stage-minus-one/rust
-        run: cargo test
+        run: |
+          cargo build --bin stage-minus-one-rust
+          cargo test
       - name: Differential and fault-sensitivity tests
         run: python3 scripts/differential.py
