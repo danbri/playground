@@ -121,6 +121,34 @@ def fixture : String → Option Node
       ]
   | _ => none
 
+private def generatedText (n : Nat) : String :=
+  match n % 4 with
+  | 0 => "a bb ccc dddd"
+  | 1 => "alpha beta gamma"
+  | 2 => "one two three four five"
+  | _ => "wrap me differently"
+
+private def generatedColor (n : Nat) : Color :=
+  match n % 5 with
+  | 0 => .black
+  | 1 => .white
+  | 2 => .red
+  | 3 => .blue
+  | _ => .green
+
+/-- Deterministic bounded-family documents used for broad differential testing. -/
+def generatedFixture (n : Nat) : Node :=
+  let width := 48 + (n % 5) * 16
+  let padding := ((n / 5) % 3) * 4
+  let innerWidth := width - 2 * padding
+  let childWidth := max 8 (innerWidth / 2)
+  let childHeight := 8 + ((n / 7) % 3) * 8
+  .box { width := some width, padding := padding, background := generatedColor (n / 15), color := generatedColor (n / 45 + 1) } [
+    .text (generatedText (n / 3)),
+    .box { width := some childWidth, height := some childHeight, background := generatedColor (n / 9 + 2), color := .black } [],
+    .text (generatedText (n / 11 + 1))
+  ]
+
 private def showItem : DisplayItem → String
   | .rect r c => s!"rect {r.x} {r.y} {r.w} {r.h} {colorName c}"
   | .text p s c => s!"text {p.x} {p.y} {colorName c} |{s}|"
