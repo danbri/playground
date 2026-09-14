@@ -1,0 +1,5 @@
+rect 0 0 120 88 red
+text 10 10 black |hello world|
+text 10 26 black |hello world|
+rect 10 42 80 20 blue
+text 10 62 black |tail|
