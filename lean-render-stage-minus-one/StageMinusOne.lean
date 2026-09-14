@@ -27,7 +27,7 @@ structure BoxStyle where
 inductive Node where
   | box : BoxStyle → List Node → Node
   | text : String → Node
-  deriving Repr, DecidableEq
+  deriving Repr
 
 structure Environment where
   viewportWidth : Nat := 120
