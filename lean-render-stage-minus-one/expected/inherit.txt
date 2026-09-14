@@ -1,0 +1,4 @@
+rect 0 0 96 64 green
+text 8 8 white |alpha beta|
+text 8 24 white |gamma|
+text 8 40 white |delta|
