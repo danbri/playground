@@ -1,0 +1,27 @@
+name: lean-render-stage-minus-one
+on:
+  push:
+    branches: [lean-render-stage-minus-one]
+  pull_request:
+
+jobs:
+  build-and-compare:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lean-render-stage-minus-one
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: lean-render-stage-minus-one
+      - name: Install Lean
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Build Lean model
+        run: ~/.elan/bin/lake build
+      - name: Build and test Rust
+        working-directory: lean-render-stage-minus-one/rust
+        run: cargo test
+      - name: Differential and fault-sensitivity tests
+        run: python3 scripts/differential.py

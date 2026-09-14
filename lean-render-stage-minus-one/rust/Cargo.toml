@@ -1,0 +1,13 @@
+[package]
+name = "stage-minus-one"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[lib]
+name = "stage_minus_one"
+path = "src/lib.rs"
+
+[[bin]]
+name = "stage-minus-one-rust"
+path = "src/main.rs"
