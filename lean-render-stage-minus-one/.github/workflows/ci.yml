@@ -1,0 +1,23 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-compare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lean
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Build Lean model
+        run: ~/.elan/bin/lake build
+      - name: Build and test Rust
+        working-directory: rust
+        run: |
+          cargo build --bin stage-minus-one-rust
+          cargo test
+      - name: Differential and fault-sensitivity tests
+        run: python3 scripts/differential.py
