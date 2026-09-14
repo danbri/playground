@@ -106,6 +106,56 @@ pub fn fixture(name: &str) -> Option<Node> {
     }
 }
 
+fn generated_text(n: u32) -> &'static str {
+    match n % 4 {
+        0 => "a bb ccc dddd",
+        1 => "alpha beta gamma",
+        2 => "one two three four five",
+        _ => "wrap me differently",
+    }
+}
+
+fn generated_color(n: u32) -> Color {
+    match n % 5 {
+        0 => Color::Black,
+        1 => Color::White,
+        2 => Color::Red,
+        3 => Color::Blue,
+        _ => Color::Green,
+    }
+}
+
+pub fn generated_fixture(n: u32) -> Node {
+    let width = 48 + (n % 5) * 16;
+    let padding = ((n / 5) % 3) * 4;
+    let inner_width = width.saturating_sub(2 * padding);
+    let child_width = (inner_width / 2).max(8);
+    let child_height = 8 + ((n / 7) % 3) * 8;
+    Node::Box(
+        BoxStyle {
+            width: Some(width),
+            padding,
+            background: generated_color(n / 15),
+            color: generated_color(n / 45 + 1),
+            ..Default::default()
+        },
+        vec![
+            Node::Text(generated_text(n / 3).into()),
+            Node::Box(
+                BoxStyle {
+                    width: Some(child_width),
+                    height: Some(child_height),
+                    background: generated_color(n / 9 + 2),
+                    color: Color::Black,
+                    ..Default::default()
+                },
+                vec![],
+            ),
+            Node::Text(generated_text(n / 11 + 1).into()),
+        ],
+    )
+}
+
 pub fn render_text(env: Environment, doc: &Node) -> String {
     render(env, doc).into_iter().map(|item| match item {
         DisplayItem::Rect { x, y, w, h, color } => format!("rect {x} {y} {w} {h} {}", color.name()),
