@@ -17,6 +17,7 @@ RUST = ROOT / "rust" / "target" / "debug" / "stage-minus-one-rust"
 EXPECTED = ROOT / "expected"
 FIXTURES = ["nested", "inherit"]
 FAULTS = ["drop_text", "off_by_one_width", "wrong_sibling_y", "wrong_paint_order"]
+GENERATED_CASES = 128
 
 
 def run(cmd, env=None):
@@ -32,6 +33,14 @@ def diff(label, want, got):
         want.splitlines(), got.splitlines(), fromfile=f"expected/{label}", tofile=label, lineterm=""
     ))
     return body or f"{label}: mismatch"
+
+
+def lean_generated(i):
+    return run([LEAN, "gen", str(i)])
+
+
+def rust_generated(i):
+    return run([RUST, "gen", str(i)])
 
 
 def rust(fixture, fault=None):
@@ -56,8 +65,17 @@ def main():
         if lean_out != rust_out:
             bad.append(diff(f"{fixture}:differential", lean_out, rust_out))
 
+    # Broad bounded family: no independent oracle claim here; this is differential
+    # refinement evidence intended to exercise many width/padding/wrapping combinations.
+    for i in range(GENERATED_CASES):
+        lean_out = lean_generated(i)
+        rust_out = rust_generated(i)
+        if lean_out != rust_out:
+            bad.append(diff(f"generated-{i}:differential", lean_out, rust_out))
+            break
+
     # Projection/harness sensitivity: every deliberate semantic corruption must be
-    # observable on at least one fixture.
+    # observable on at least one independent fixture.
     for fault in FAULTS:
         detected = any(rust(fixture, fault) != expected(fixture) for fixture in FIXTURES)
         if not detected:
@@ -69,7 +87,7 @@ def main():
         return 1
 
     print(
-        f"PASS: {len(FIXTURES)} fixtures match independent observations in Lean and Rust; "
+        f"PASS: {len(FIXTURES)} independent golden fixtures and {GENERATED_CASES} bounded generated cases agree; "
         f"{len(FAULTS)} deliberate faults detected"
     )
     return 0
